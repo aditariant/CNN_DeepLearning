@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Preview Image Before Upload | CodingNepal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="file:///E:/fontawesome/css/all.css">
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js"></script> -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+            const Url = 'http://127.0.0.1:5000/predict'
+            
+            window.addEventListener('load', function() {
+            document.querySelector('input[type="file"]').addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    var img = document.getElementById('imageData');  
+                    img.src = URL.createObjectURL(this.files[0]); 
+
+                    var data = new FormData()
+                    data.append('file', this.files[0])
+
+                    fetch(Url, {
+                        method: 'POST',
+                        body: data
+                    })
+                    .then(response => response.json())
+                    .then(response => document.getElementById('classText').innerHTML = response.class_name)
+                    .catch(error => console.log(error))
+                }
+            });
+            });
+        </script>
+  </head>
+  <body>
+    <div class="text">
+        <br><br>
+        <h2 id="classText"></h2>
+    </div>
+    <div class="container">
+
+      <div class="wrapper">
+        <div class="image">
+          <img id="imageData" src="" alt="">
+        </div>
+        <div class="content">
+          <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+          <div class="text">No file chosen, yet!</div>
+        </div>
+          <div id="cancel-btn"><i class="fas fa-times"></i></div>
+          <div class="file-name">File name here</div>
+      </div>
+      <button onclick="defaultBtnActive()" id="custom-btn">Choose a file</button>
+      <input id="default-btn" type="file" hidden>
+    </div>
+
+
+    <script>
+      const wrapper = document.querySelector(".wrapper");
+      const fileName = document.querySelector(".file-name");
+      const defaultBtn = document.querySelector("#default-btn");
+      const customBtn = document.querySelector("#custom-btn");
+      const cancelBtn = document.querySelector("#cancel-btn i");
+      const img = document.querySelector("img");
+      let regExp = /[0-9a-zA-Z\^\&\'\@\{\}\[\]\,\$\=\!\-\#\(\)\.\%\+\~\_ ]+$/;
+      function defaultBtnActive(){
+        defaultBtn.click();
+      }
+      defaultBtn.addEventListener("change", function(){
+        const file = this.files[0];
+        if(file){
+          const reader = new FileReader();
+          reader.onload = function(){
+            const result = reader.result;
+            img.src = result;
+            wrapper.classList.add("active");
+          }
+          cancelBtn.addEventListener("click", function(){
+            img.src = "";
+            wrapper.classList.remove("active");
+          })
+          reader.readAsDataURL(file);
+        }
+        if(this.value){
+          let valueStore = this.value.match(regExp);
+          fileName.textContent = valueStore;
+        }
+      });
+    </script>
+
+  </body>
+</html>
